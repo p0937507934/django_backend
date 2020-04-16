@@ -1,1 +1,6 @@
 venv
+/data/pic
+
+
+__pycache__
+

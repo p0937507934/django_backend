@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'config',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-MEDIA_URL='/data/'
+MEDIA_URL='/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'data')
 
 # Password validation
@@ -140,3 +141,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}

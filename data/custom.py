@@ -1,17 +1,16 @@
-from rest_framework import parsers, renderers
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import (HTTP_HEADER_ENCODING, exceptions, parsers,
+                            renderers, serializers)
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.compat import coreapi, coreschema
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
-from rest_framework.authentication import TokenAuthentication
-from rest_framework import exceptions
-from django.utils.translation import gettext_lazy as _
-from rest_framework import HTTP_HEADER_ENCODING
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
 
 
 class ObtainAuthToken(APIView):
@@ -46,6 +45,7 @@ class ObtainAuthToken(APIView):
             encoding="application/json",
         )
 
+    @swagger_auto_schema(operation_description="description")
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
@@ -75,7 +75,6 @@ class CustomTokenAuthentication(TokenAuthentication):
 
     def authenticate_credentials(self, key):
         model = self.get_model()
-        print("1")
         try:
             token = model.objects.select_related('user').get(key=key)
         except model.DoesNotExist:
