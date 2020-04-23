@@ -11,7 +11,10 @@ class Data(Model):
     config_id = IntegerField()
     user_id = IntegerField()
     device_id = IntegerField()
-    img_path = ImageField(upload_to='pic/%Y%m%D')
+    product_serial=TextField()
+    img = ImageField(upload_to='pic/%Y%m%D')
+    label=IntegerField()
+    confidence=FloatField()
 
 
 class DataCheck(Model):
@@ -21,4 +24,5 @@ class DataCheck(Model):
     absorbance = JSONField(default=list)
     config_id = IntegerField()
     device_serial = TextField()
-    img_path = FileField()
+    product_serial=TextField()
+    img = FileField()

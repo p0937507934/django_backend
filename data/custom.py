@@ -11,6 +11,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
 
 
 class ObtainAuthToken(APIView):
@@ -78,7 +79,7 @@ class CustomTokenAuthentication(TokenAuthentication):
         try:
             token = model.objects.select_related('user').get(key=key)
         except model.DoesNotExist:
-            raise exceptions.AuthenticationFailed(_('錯誤的憑證'))
+            raise exceptions.AuthenticationFailed(_('使用者不存在,請重新登入'))
 
         if not token.user.is_active:
             raise exceptions.AuthenticationFailed(
