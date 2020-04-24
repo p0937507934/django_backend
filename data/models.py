@@ -12,7 +12,7 @@ class Data(Model):
     user_id = IntegerField()
     device_id = IntegerField()
     product_serial=TextField()
-    img = ImageField(upload_to='pic/%Y%m%D')
+    img = ImageField(upload_to='pic/%Y/%m/%D')
     label=IntegerField()
     confidence=FloatField()
 
