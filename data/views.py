@@ -1,10 +1,14 @@
 from django.conf import settings
+import requests
+import urllib
+import sys
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
+import json
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import exceptions
@@ -38,14 +42,14 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 @authentication_classes([CustomTokenAuthentication, ])
 @permission_classes([IsAuthenticated])
 def Data_list(request):
-    
+
     if request.method == "GET":
         data = Data.objects.all()
         serializer = DataSerializer(
             data, many=True, context={"request": request})
         return JsonResponse(serializer.data, safe=False, status=200)
     elif request.method == "POST":
-        
+
         recv_data = request.POST
         img = request.FILES.get("img")
 
@@ -64,30 +68,54 @@ def Data_list(request):
         _mutable = recv_data._mutable
         recv_data._mutable = True
         try:
-            recv_data['device_id'] = Device.objects.get(serial=recv_data.get("device_serial")).pk     
-        except: 
+            recv_data['device_id'] = Device.objects.get(
+                serial=recv_data.get("device_serial")).pk
+        except:
             raise exceptions.AuthenticationFailed(_('裝置不存在'))
         recv_data['user_id'] = User.objects.get(username=request.user).pk
 
-
         try:
-            recv_data['wavelength']=list(map(float, recv_data['wavelength'][1:-2].split(',')))
-            recv_data['intensity']=list(map(float, recv_data['intensity'][1:-2].split(',')))
-            recv_data['reflectance']=list(map(float, recv_data['reflectance'][1:-2].split(',')))
-            recv_data['absorbance']=list(map(float, recv_data['absorbance'][1:-2].split(',')))
+            recv_data['wavelength'] = list(
+                map(float, recv_data['wavelength'][1:-2].split(',')))
+            recv_data['intensity'] = list(
+                map(float, recv_data['intensity'][1:-2].split(',')))
+            recv_data['reflectance'] = list(
+                map(float, recv_data['reflectance'][1:-2].split(',')))
+            recv_data['absorbance'] = list(
+                map(float, recv_data['absorbance'][1:-2].split(',')))
         except:
             raise exceptions.AuthenticationFailed(_('光譜資料錯誤'))
-        predict_result=callapi() ##待補
+        predict_result = callapi(recv_data['reflectance'])  # 待補
         
-        recv_data['label']=predict_result["label"]
-        recv_data['confidence']=predict_result["confidence"]
-        
-        recv_data._mutable = _mutable
-        print(recv_data)
-        saveDataSerializer = DataSerializer(data=recv_data)
-        saveDataSerializer.is_valid(raise_exception=True)
-        saveDataSerializer.save()
-        return JsonResponse({'predict_result':predict_result}, safe=False, status=200)
+        recv_data['level'] = json.loads(predict_result.text)["level"]
+        recv_data['confidence'] = json.loads(predict_result.text)["confidence"]
 
-def callapi():
-    return {"label":0,"confidence":0.9}
+        recv_data._mutable = _mutable
+        
+        saveDataSerializer = DataSerializer(data=recv_data)
+        
+        saveDataSerializer.is_valid(raise_exception=True)
+        
+        saveDataSerializer.save()
+        
+        return JsonResponse({'predict_result': json.loads(predict_result.text)}, safe=False, status=200)
+
+
+def callapi(ref_data):
+
+    data = {"reflectance": str({"reflectance": ref_data})}
+
+    try:
+        url = 'http://18.139.10.100:5000/classify?'
+
+        qry = urllib.parse.urlencode(data).replace('%3A', ':').replace('%7B', '{').replace(
+            "%27", "\"").replace("+%5B", "[").replace("%2C+", ",").replace("%5D", "]").replace("%7D", "}")
+        s = requests.Session()
+        req = requests.Request(method='GET', url=url)
+        prep = req.prepare()
+        prep.url = url + qry
+        r = s.send(prep)
+        return r
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return e
