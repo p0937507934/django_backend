@@ -52,19 +52,24 @@ def Data_list(request):
 
         recv_data = request.POST
         img = request.FILES.get("img")
+        
 
         from device.models import Device
         from django.contrib.auth.models import User
 
         _mutable = recv_data._mutable
         recv_data._mutable = True
-        recv_data['img'] = img
+        if not img._get_name() =="-1":
+            
+            recv_data['img'] = img
+        
         recv_data._mutable = _mutable
 
         # check receive data format
         checkSerializer = DataCheckSerializer(data=recv_data)
+        print("123")
         checkSerializer.is_valid(raise_exception=True)
-
+        print("456")
         _mutable = recv_data._mutable
         recv_data._mutable = True
         try:
@@ -73,7 +78,7 @@ def Data_list(request):
         except:
             raise exceptions.AuthenticationFailed(_('裝置不存在'))
         recv_data['user_id'] = User.objects.get(username=request.user).pk
-
+        print("789")
         try:
             recv_data['wavelength'] = list(
                 map(float, recv_data['wavelength'][1:-2].split(',')))
@@ -93,9 +98,10 @@ def Data_list(request):
         recv_data._mutable = _mutable
         
         saveDataSerializer = DataSerializer(data=recv_data)
-        
+        print("89")
+        print(recv_data)
         saveDataSerializer.is_valid(raise_exception=True)
-        
+        print("1010")
         saveDataSerializer.save()
         
         return JsonResponse({'predict_result': json.loads(predict_result.text)}, safe=False, status=200)
