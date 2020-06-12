@@ -60,7 +60,6 @@ def Data_list(request):
         _mutable = recv_data._mutable
         recv_data._mutable = True
         if not img._get_name() =="-1":
-            
             recv_data['img'] = img
         
         recv_data._mutable = _mutable
