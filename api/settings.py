@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -88,7 +89,7 @@ DATABASES = {
         'NAME': 'api',
         'USER': 'hsipl',
         'PASSWORD': '211',
-        'HOST': '140.125.45.160',
+        'HOST': '140.125.45.161',
         'PORT': '3306',
     }
 }
@@ -156,3 +157,5 @@ SWAGGER_SETTINGS = {
       }
    }
 }
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

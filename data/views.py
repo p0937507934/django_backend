@@ -89,21 +89,21 @@ def Data_list(request):
                 map(float, recv_data['absorbance'][1:-2].split(',')))
         except:
             raise exceptions.AuthenticationFailed(_('光譜資料錯誤'))
-        predict_result = callapi(recv_data['reflectance'])  # 待補
+        # predict_result = callapi(recv_data['reflectance'])  # 待補
         
-        recv_data['level'] = json.loads(predict_result.text)["level"]
-        recv_data['confidence'] = json.loads(predict_result.text)["confidence"]
+        # recv_data['level'] = json.loads(predict_result.text)["level"]
+        # recv_data['confidence'] = json.loads(predict_result.text)["confidence"]
 
-        recv_data._mutable = _mutable
+        # recv_data._mutable = _mutable
         
         saveDataSerializer = DataSerializer(data=recv_data)
-        print("89")
+        # print("89")
         print(recv_data)
         saveDataSerializer.is_valid(raise_exception=True)
-        print("1010")
+        # print("1010")
         saveDataSerializer.save()
         
-        return JsonResponse({'predict_result': json.loads(predict_result.text)}, safe=False, status=200)
+        # return JsonResponse({'predict_result': json.loads(predict_result.text)}, safe=False, status=200)
 
 
 def callapi(ref_data):
@@ -124,3 +124,6 @@ def callapi(ref_data):
     except Exception as e:
         print(e, file=sys.stderr)
         return e
+
+def hello():
+    return HttpResponse("heeloo")

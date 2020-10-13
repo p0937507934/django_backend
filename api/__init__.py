@@ -3,7 +3,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 # 開啟資料庫連線
-db = pymysql.connect('140.125.45.160', 'hsipl','211','api')
+db = pymysql.connect('140.125.45.161', 'hsipl','211','api')
 # db = pymysql.connect(host="localhost", user="root", password="admin", db="epoch", port=3306)
 # 使用cursor()方法獲取操作遊標
 cursor = db.cursor()
